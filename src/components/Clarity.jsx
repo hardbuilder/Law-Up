@@ -19,7 +19,7 @@ const Clarity = () => {
 
   return (
     <div ref={ref} className="flex flex-col justify-center items-center py-20 bg-gradient-to-r from-indigo-50 via-blue-50 to-white font-sans">
-      <h1 className="text-5xl font-bold text-blue-900" style={{ fontFamily: '\"Sansita\", sans-serif' }}>Get Clarity in 3 Simple Steps</h1>
+      <h1 className="text-5xl font-bold text-blue-900" style={{ fontFamily: '"Sansita", sans-serif' }}>Get Clarity in 3 Simple Steps</h1>
       <h2 className="text-2xl py-10 text-gray-600 max-w-3xl text-center">
         Our process is designed to be simple, fast, and secure, giving you the confidence to act.
       </h2>
@@ -35,7 +35,7 @@ const Clarity = () => {
             <h1 className="text-4xl font-bold text-white">1</h1>
           </div>
           <div className="w-80 h-72 bg-white p-6 rounded-2xl mt-8 shadow-md transition-all duration-500 group-hover:shadow-2xl group-hover:-translate-y-2">
-            <h3 className="text-2xl font-bold text-blue-900 mb-4" style={{ fontFamily: '\"Sansita\", sans-serif' }}>Upload Your Documents</h3>
+            <h3 className="text-2xl font-bold text-blue-900 mb-4" style={{ fontFamily: '"Sansita", sans-serif' }}>Upload Your Documents</h3>
             <p className="text-lg text-gray-700">
               Securely drag and drop your file. We handle the rest, extracting text and preparing it for analysis.
             </p>
@@ -55,7 +55,7 @@ const Clarity = () => {
             <h1 className="text-4xl font-bold text-white">2</h1>
           </div>
           <div className="w-80 h-72 bg-white p-6 rounded-2xl mt-8 shadow-md transition-all duration-500 group-hover:shadow-2xl group-hover:-translate-y-2">
-            <h3 className="text-2xl font-bold text-blue-900 mb-4" style={{ fontFamily: '\"Sansita\", sans-serif' }}>AI-Powered Analysis</h3>
+            <h3 className="text-2xl font-bold text-blue-900 mb-4" style={{ fontFamily: '"Sansita", sans-serif' }}>AI-Powered Analysis</h3>
             <p className="text-lg text-gray-700">
               We scan your document for risks, obligations, and key terms in just a few seconds.
             </p>
@@ -75,7 +75,7 @@ const Clarity = () => {
             <h1 className="text-4xl font-bold text-white">3</h1>
           </div>
           <div className="w-80 h-72 bg-white p-6 rounded-2xl mt-8 shadow-md transition-all duration-500 group-hover:shadow-2xl group-hover:-translate-y-2">
-            <h3 className="text-2xl font-bold text-blue-900 mb-4" style={{ fontFamily: '\"Sansita\", sans-serif' }}>See Your Insights</h3>
+            <h3 className="text-2xl font-bold text-blue-900 mb-4" style={{ fontFamily: '"Sansita", sans-serif' }}>See Your Insights</h3>
             <p className="text-lg text-gray-700">
               Explore your dashboard, view summaries, and chat with the document to get clear answers instantly.
             </p>
