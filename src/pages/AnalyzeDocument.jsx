@@ -8,13 +8,15 @@ const AnalyzeDocument = () => {
   const [file, setFile] = useState(null);
   const [tncAccepted, setTncAccepted] = useState(false);
   const [showTncPopup, setShowTncPopup] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const navigate = useNavigate();
 
   const handleFileChange = (selectedFile) => {
     setFile(selectedFile);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!file) {
       alert('Please select a file first.');
       return;
@@ -23,9 +25,61 @@ const AnalyzeDocument = () => {
       alert('Please accept the terms and conditions before submitting.');
       return;
     }
-    // Handle file upload logic here
-    console.log('Uploading file:', file);
-    navigate('/preview', { state: { uploadedFile: file } });
+
+    try {
+      setIsUploading(true);
+      
+      // Step 1: Upload file
+      const formData = new FormData();
+      formData.append('document', file);
+      
+      const uploadResponse = await fetch('http://localhost:5000/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload file');
+      }
+      
+      const uploadData = await uploadResponse.json();
+      const fileId = uploadData.fileId;
+      
+      setIsUploading(false);
+      setIsAnalyzing(true);
+      
+      // Step 2: Analyze document
+      const analysisResponse = await fetch('http://localhost:5000/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fileId }),
+      });
+      
+      if (!analysisResponse.ok) {
+        throw new Error('Failed to analyze document');
+      }
+      
+      const analysisData = await analysisResponse.json();
+      
+      setIsAnalyzing(false);
+      
+      // Navigate to preview with analysis results
+      navigate('/preview', { 
+        state: { 
+          uploadedFile: file,
+          fileId: fileId,
+          analysis: analysisData.analysis
+        }
+      });
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert(`Error: ${error.message}`);
+      setIsUploading(false);
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -78,9 +132,10 @@ const AnalyzeDocument = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.8 }}
               onClick={handleSubmit}
-              className="px-6 py-2 bg-[#2C2C2C] hover:bg-black text-white rounded-md mb-2 self-start"
+              disabled={isUploading || isAnalyzing}
+              className="px-6 py-2 bg-[#2C2C2C] hover:bg-black text-white rounded-md mb-2 self-start disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              Submit
+              {isUploading ? 'Uploading...' : isAnalyzing ? 'Analyzing...' : 'Submit'}
             </motion.button>
           </section>
         </div>

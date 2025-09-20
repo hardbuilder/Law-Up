@@ -14,6 +14,7 @@ const PreviewPage = () => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [fileUrl, setFileUrl] = useState(null);
+  const [fileId, setFileId] = useState(null);
   const chatContainerRef = useRef(null);
   const [summary, setSummary] = useState('');
   const [risks, setRisks] = useState([]);
@@ -25,36 +26,54 @@ const PreviewPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState('summary'); // 'summary' or 'chat'
   const [keyClauses, setKeyClauses] = useState([]);
-  const score = 85;
+  const [score, setScore] = useState(85);
+  const [isBotTyping, setIsBotTyping] = useState(false);
 
   const location = useLocation();
 
   useEffect(() => {
     const file = location.state?.uploadedFile;
+    const analysis = location.state?.analysis;
+    const uploadedFileId = location.state?.fileId;
+    
     if (file) {
       const url = URL.createObjectURL(file);
       setFileUrl(url);
+      setFileId(uploadedFileId);
 
-      // Dummy data
-      setSummary("This employment agreement outlines the terms of John Doe's position as a Software Engineer at Acme Corp, including salary, responsibilities, and termination clauses. The agreement is standard but contains clauses that require careful review.");
-      setRisks([
-        { text: "The non-compete clause is broad and may restrict future employment opportunities.", severity: 'High', recommendation: 'Consult with a lawyer to review the non-compete clause.' },
-        { text: "Termination for 'cause' is vaguely defined, giving the employer significant discretion.", severity: 'Medium', recommendation: 'Request a more precise definition of \'cause\' for termination.' },
-        { text: "The intellectual property clause assigns all work-related inventions to the company, which is standard but noteworthy.", severity: 'Low', recommendation: 'Ensure you understand the scope of the IP clause.' },
-      ]);
-      setPositives(["The salary and bonus structure are competitive for the industry.", "The company offers a comprehensive benefits package, including health insurance and a 401(k) plan."]);
-      setObligations(["The employee must work 40 hours per week.", "The employee must not disclose confidential company information."]);
-      setEntitlements(["The employee is entitled to 20 days of paid time off per year.", "The employee is entitled to a yearly performance bonus."]);
-      setKeyClauses([
-        { title: "Non-Compete Clause", content: "The non-compete clause is broad and may restrict future employment opportunities." },
-        { title: "Termination for Cause", content: "Termination for 'cause' is vaguely defined, giving the employer significant discretion." },
-        { title: "Intellectual Property", content: "The intellectual property clause assigns all work-related inventions to the company, which is standard but noteworthy." },
-      ]);
-      setSentiment("Formal & Neutral");
+      // Use real analysis data if available
+      if (analysis) {
+        setSummary(analysis.summary || "Document analysis completed successfully.");
+        setRisks(analysis.risks || []);
+        setPositives(analysis.positives || []);
+        setObligations(analysis.obligations || []);
+        setEntitlements(analysis.entitlements || []);
+        setKeyClauses(analysis.keyClauses || []);
+        setSentiment(analysis.sentiment || "Neutral");
+        setScore(analysis.score || 75);
+      } else {
+        // Fallback to dummy data if no analysis provided
+        setSummary("This employment agreement outlines the terms of John Doe's position as a Software Engineer at Acme Corp, including salary, responsibilities, and termination clauses. The agreement is standard but contains clauses that require careful review.");
+        setRisks([
+          { text: "The non-compete clause is broad and may restrict future employment opportunities.", severity: 'High', recommendation: 'Consult with a lawyer to review the non-compete clause.' },
+          { text: "Termination for 'cause' is vaguely defined, giving the employer significant discretion.", severity: 'Medium', recommendation: 'Request a more precise definition of \'cause\' for termination.' },
+          { text: "The intellectual property clause assigns all work-related inventions to the company, which is standard but noteworthy.", severity: 'Low', recommendation: 'Ensure you understand the scope of the IP clause.' },
+        ]);
+        setPositives(["The salary and bonus structure are competitive for the industry.", "The company offers a comprehensive benefits package, including health insurance and a 401(k) plan."]);
+        setObligations(["The employee must work 40 hours per week.", "The employee must not disclose confidential company information."]);
+        setEntitlements(["The employee is entitled to 20 days of paid time off per year.", "The employee is entitled to a yearly performance bonus."]);
+        setKeyClauses([
+          { title: "Non-Compete Clause", content: "The non-compete clause is broad and may restrict future employment opportunities." },
+          { title: "Termination for Cause", content: "Termination for 'cause' is vaguely defined, giving the employer significant discretion." },
+          { title: "Intellectual Property", content: "The intellectual property clause assigns all work-related inventions to the company, which is standard but noteworthy." },
+        ]);
+        setSentiment("Formal & Neutral");
+        setScore(85);
+      }
 
       return () => URL.revokeObjectURL(url);
     }
-  }, [location.state?.uploadedFile]);
+  }, [location.state?.uploadedFile, location.state?.analysis, location.state?.fileId]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -67,16 +86,43 @@ const PreviewPage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (inputValue.trim()) {
       const userMessage = { text: inputValue, sender: 'user' };
       setMessages(prevMessages => [...prevMessages, userMessage]);
+      const currentInput = inputValue;
       setInputValue('');
+      setIsBotTyping(true);
 
-      setTimeout(() => {
-        const botResponse = { text: 'This is a simulated response.', sender: 'bot' };
+      try {
+        const response = await fetch('http://localhost:5000/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            prompt: currentInput, 
+            fileId: fileId // Include the fileId for document context
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to get response from server');
+        }
+
+        const data = await response.json();
+        const botResponse = { text: data.response, sender: 'bot' };
         setMessages(prevMessages => [...prevMessages, botResponse]);
-      }, 1000);
+      } catch (error) {
+        console.error('Chat error:', error);
+        const errorResponse = { 
+          text: 'Sorry, I encountered an error while processing your question. Please try again.', 
+          sender: 'bot' 
+        };
+        setMessages(prevMessages => [...prevMessages, errorResponse]);
+      } finally {
+        setIsBotTyping(false);
+      }
     }
   };
 
@@ -153,7 +199,8 @@ const PreviewPage = () => {
                 inputValue={inputValue} 
                 setInputValue={setInputValue} 
                 handleSendMessage={handleSendMessage} 
-                chatContainerRef={chatContainerRef} 
+                chatContainerRef={chatContainerRef}
+                isBotTyping={isBotTyping}
               />
             )}
           </AnimatePresence>

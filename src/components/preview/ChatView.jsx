@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const ChatView = ({ messages, inputValue, setInputValue, handleSendMessage, chatContainerRef }) => {
+const ChatView = ({ messages, inputValue, setInputValue, handleSendMessage, chatContainerRef, isBotTyping }) => {
 
   return (
     <motion.div key="chat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -13,11 +13,11 @@ const ChatView = ({ messages, inputValue, setInputValue, handleSendMessage, chat
               <div key={index} className={`flex items-start gap-4 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {message.sender === 'bot' && (
                   <div className="w-10 h-10 rounded-full bg-blue-500 flex-shrink-0 flex items-center justify-center text-white font-bold">
-                    AI
+                    AI 
                   </div>
                 )}
                 <div className={`rounded-xl p-4 max-w-lg ${message.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'}`}>
-                  <p>{message.text}</p>
+                  <p style={{ whiteSpace: 'pre-wrap' }}>{message.text}</p>
                 </div>
                 {message.sender === 'user' && (
                   <div className="w-10 h-10 rounded-full bg-gray-300 flex-shrink-0 flex items-center justify-center text-gray-600 font-bold">
@@ -26,6 +26,20 @@ const ChatView = ({ messages, inputValue, setInputValue, handleSendMessage, chat
                 )}
               </div>
             ))}
+            {isBotTyping && (
+              <div className="flex items-start gap-4 justify-start">
+                <div className="w-10 h-10 rounded-full bg-blue-500 flex-shrink-0 flex items-center justify-center text-white font-bold">
+                  AI
+                </div>
+                <div className="rounded-xl p-4 max-w-lg bg-gray-100 text-gray-800">
+                  <div className="flex items-center space-x-1">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           <div className="mt-6 flex">
             <input
