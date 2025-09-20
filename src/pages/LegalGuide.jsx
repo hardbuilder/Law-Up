@@ -1,25 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiPlus, FiMessageSquare, FiSend } from 'react-icons/fi';
+import GetStarted from '../components/legalguide/GetStarted';
 
 const LegalGuide = () => {
-  const [messages, setMessages] = useState([
-    { text: 'Hello! Ask me any legal question.', sender: 'bot' },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const chatContainerRef = useRef(null);
+  const [isBotTyping, setIsBotTyping] = useState(false);
 
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isBotTyping]);
 
-  const handleSendMessage = () => {
-    if (inputValue.trim()) {
-      const userMessage = { text: inputValue, sender: 'user' };
+  const handleSendMessage = async (textOverride) => {
+    const text = (typeof textOverride === 'string' && textOverride) || inputValue;
+
+    if (text.trim()) {
+      const userMessage = { text, sender: 'user' };
       const newMessages = [...messages, userMessage];
       setMessages(newMessages);
 
@@ -34,15 +36,29 @@ const LegalGuide = () => {
         setChatHistory(updatedHistory);
       } else {
         currentChatId = Date.now();
-        const newChat = { id: currentChatId, title: inputValue.slice(0, 25), messages: newMessages };
+        const newChat = { id: currentChatId, title: text.slice(0, 25), messages: newMessages };
         updatedHistory = [newChat, ...chatHistory];
         setChatHistory(updatedHistory);
         setActiveChat(newChat);
       }
       setInputValue('');
+      setIsBotTyping(true);
 
-      setTimeout(() => {
-        const botResponse = { text: 'This is a simulated response to your legal query.', sender: 'bot' };
+      try {
+        const response = await fetch('http://localhost:5000/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: text }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Something went wrong');
+        }
+
+        const data = await response.json();
+        const botResponse = { text: data.response, sender: 'bot' };
         const finalMessages = [...newMessages, botResponse];
         setMessages(finalMessages);
 
@@ -51,7 +67,14 @@ const LegalGuide = () => {
           );
         setChatHistory(finalUpdatedHistory);
 
-      }, 1500);
+      } catch (error) {
+        console.error('Error:', error);
+        const botResponse = { text: 'Sorry, I am having trouble connecting to the server.', sender: 'bot' };
+        const finalMessages = [...newMessages, botResponse];
+        setMessages(finalMessages);
+      } finally {
+        setIsBotTyping(false);
+      }
     }
   };
 
@@ -62,7 +85,11 @@ const LegalGuide = () => {
 
   const startNewChat = () => {
     setActiveChat(null);
-    setMessages([{ text: 'Hello! Ask me any legal question.', sender: 'bot' }]);
+    setMessages([]);
+  };
+
+  const handlePromptClick = (prompt) => {
+    handleSendMessage(prompt);
   };
 
   return (
@@ -106,35 +133,57 @@ const LegalGuide = () => {
             {/* Main Chat Area */}
             <div className="w-2/3 flex-1 flex flex-col bg-white">
                 <div className="flex-1 p-6 overflow-y-auto" ref={chatContainerRef}>
-                    <AnimatePresence>
-                        {messages.map((message, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className={`flex items-start gap-4 my-4 ${message.sender === 'user' ? 'justify-end' : ''}`}
-                        >
-                            {message.sender === 'bot' && (
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-lg">
-                                G
-                            </div>
-                            )}
-                            <div
-                            className={`rounded-2xl p-4 max-w-2xl shadow-sm ${
-                                message.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'
-                            }`}
+                    {messages.length === 0 ? (
+                        <GetStarted onPromptClick={handlePromptClick} />
+                    ) : (
+                        <AnimatePresence>
+                            {messages.map((message, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                className={`flex items-start gap-4 my-4 ${message.sender === 'user' ? 'justify-end' : ''}`}
                             >
-                            <p style={{whiteSpace: 'pre-wrap'}}>{message.text}</p>
-                            </div>
-                            {message.sender === 'user' && (
-                            <div className="w-10 h-10 rounded-full bg-gray-300 flex-shrink-0 flex items-center justify-center text-gray-600 font-bold">
-                                Y
-                            </div>
+                                {message.sender === 'bot' && (
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-lg">
+                                    G
+                                </div>
+                                )}
+                                <div
+                                className={`rounded-2xl p-4 max-w-2xl shadow-sm ${
+                                    message.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'
+                                }`}
+                                >
+                                <p style={{whiteSpace: 'pre-wrap'}}>{message.text}</p>
+                                </div>
+                                {message.sender === 'user' && (
+                                <div className="w-10 h-10 rounded-full bg-gray-300 flex-shrink-0 flex items-center justify-center text-gray-600 font-bold">
+                                    Y
+                                </div>
+                                )}
+                            </motion.div>
+                            ))}
+                            {isBotTyping && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="flex items-start gap-4 my-4"
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-lg">
+                                        G
+                                    </div>
+                                    <div className="rounded-2xl p-4 max-w-xs shadow-sm bg-gray-100 text-gray-800">
+                                        <div className="flex items-center justify-center">
+                                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s] mx-1"></div>
+                                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                                        </div>
+                                    </div>
+                                </motion.div>
                             )}
-                        </motion.div>
-                        ))}
-                    </AnimatePresence>
+                        </AnimatePresence>
+                    )}
                 </div>
 
                 {/* Input area */}
@@ -149,7 +198,7 @@ const LegalGuide = () => {
                         onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                         />
                         <button
-                        onClick={handleSendMessage}
+                        onClick={() => handleSendMessage()}
                         disabled={!inputValue.trim()}
                         className="bg-blue-600 text-white rounded-full p-3 transition-transform duration-300 hover:scale-110 disabled:bg-gray-400 disabled:scale-100"
                         >

@@ -1,8 +1,8 @@
 import React from 'react';
-import HeroSection from '../components/HeroSection';
-import GetStarted from '../components/GetStarted';
-import WhyUs from '../components/WhyUs';
-import Clarity from '../components/Clarity';
+import HeroSection from '../components/home/HeroSection';
+import GetStarted from '../components/home/GetStarted';
+import WhyUs from '../components/home/WhyUs';
+import Clarity from '../components/home/Clarity';
 
 const Home = () => {
   return (

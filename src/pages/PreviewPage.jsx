@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import SummaryCard from '../components/SummaryCard';
-import KeyClausesCard from '../components/KeyClausesCard';
-import RisksCard from '../components/RisksCard';
-import InfoCards from '../components/InfoCards';
-import GraphicalSummary from '../components/GraphicalSummary';
-import ChatView from '../components/ChatView';
+import SummaryCard from '../components/preview/SummaryCard';
+import KeyClausesCard from '../components/preview/KeyClausesCard';
+import RisksCard from '../components/preview/RisksCard';
+import InfoCards from '../components/preview/InfoCards';
+import GraphicalSummary from '../components/preview/GraphicalSummary';
+import ChatView from '../components/preview/ChatView';
 
 const PreviewPage = () => {
   const [messages, setMessages] = useState([

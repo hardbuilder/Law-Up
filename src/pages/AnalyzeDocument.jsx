@@ -1,31 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import UploadBox from '../components/UploadBox';
+import UploadBox from '../components/analyze/UploadBox';
 import { motion } from 'framer-motion';
-
-const TncPopup = ({ onClose }) => {
-  return (
-    <div className="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
-        <h2 className="text-2xl font-bold mb-4">Terms & Conditions</h2>
-        <div className="text-gray-700 max-h-64 overflow-y-auto">
-          <p>This is a placeholder for your terms and conditions. You should replace this with your actual T&Cs.</p>
-          <p>1. By using this service, you agree to our terms of use.</p>
-          <p>2. The documents you upload are your responsibility.</p>
-          <p>3. We are not liable for any legal issues arising from the use of our service.</p>
-          <p>4. We reserve the right to change these terms and conditions at any time.</p>
-        </div>
-        <button
-          onClick={onClose}
-          className="mt-6 px-4 py-2 bg-blue-800 text-white rounded hover:bg-blue-900"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  );
-};
-
+import TermsAndConditions from '../components/analyze/TermsAndConditions';
 
 const AnalyzeDocument = () => {
   const [file, setFile] = useState(null);
@@ -53,7 +30,7 @@ const AnalyzeDocument = () => {
 
   return (
     <section className="relative py-64">
-      {showTncPopup && <TncPopup onClose={() => setShowTncPopup(false)} />}
+      {showTncPopup && <TermsAndConditions onClose={() => setShowTncPopup(false)} />}
       <img
         src="/assests/analyze/bg.png"
         alt="decor"
