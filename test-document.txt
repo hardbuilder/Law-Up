@@ -1,0 +1,32 @@
+EMPLOYMENT AGREEMENT
+
+This Employment Agreement ("Agreement") is entered into on January 1, 2024, between ABC Company ("Company") and John Doe ("Employee").
+
+1. POSITION AND DUTIES
+Employee shall serve as Software Engineer and shall perform duties as assigned by the Company.
+
+2. COMPENSATION
+Employee shall receive a salary of $80,000 per year, payable in accordance with Company's standard payroll practices.
+
+3. BENEFITS
+Employee shall be entitled to participate in Company's standard benefit programs including health insurance and 401(k) plan.
+
+4. TERMINATION
+This agreement may be terminated by either party with 30 days written notice. Company may terminate for cause immediately.
+
+5. NON-COMPETE
+Employee agrees not to compete with Company for a period of 2 years after termination within a 50-mile radius.
+
+6. CONFIDENTIALITY
+Employee agrees to maintain confidentiality of all Company proprietary information.
+
+7. INTELLECTUAL PROPERTY
+All work product created during employment shall be the property of the Company.
+
+This agreement is governed by the laws of the State of California.
+
+Employee: _______________________
+Date: ___________________________
+
+Company: _______________________
+Date: ___________________________
